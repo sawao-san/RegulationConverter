@@ -32,6 +32,14 @@ namespace regulationConverter
         //フィールド
         private string importFilePath;
 
+        enum NameType
+        {
+
+            Section,
+            S_Section,
+            S_S_Section,
+            S_S_S_Section,
+        }
         public string ImportFilePath
         {
             set
@@ -93,18 +101,25 @@ namespace regulationConverter
                         }
                         else
                         {
-                            char[] c = cellA.Value.ToString().ToCharArray();
-                            if (Char.IsNumber(c[0]))
-                            {
-                                cellF.Value = "〇";
-                            }
-                            else if (c[0] == '(')
+                            if (isSection(cellA.Value.ToString()))
                             {
 
                             }
-                            else if(c[0] == ' ')
+                            else if (isS_Section(cellA.Value.ToString()))
                             {
-                                cellF.Value = "小小セクション";
+
+                            }
+                            else if (isS_S_Section(cellA.ToString()))
+                            {
+
+                            }
+                            else if (isS_S_S_Section(cellA.Value.ToString()))
+                            {
+
+                            }
+                            else
+                            {
+
                             }
                             
                         }
@@ -312,6 +327,117 @@ namespace regulationConverter
             }
         }
 
-        public static bool isS_S_Sec
+        public static bool isS_S_Section(string txt)
+        {
+            if (txt == "")
+            {
+                return false;
+            }
+
+            if (txt.Contains("(1)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(2)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(3)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(4)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(5)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(6)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(7)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(8)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(9)"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+
+        public static bool isS_S_S_Section(string txt)
+        {
+            if (txt == "")
+            {
+                return false;
+            }
+            char[] c = txt.ToCharArray();
+            if(c[0] != ' ')
+            {
+                return false;
+            }
+
+
+            if (txt.Contains("(i)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(ii)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(iii)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(iv)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(v)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(vi)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(vii)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(viii)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(ix)"))
+            {
+                return true;
+            }
+            else if (txt.Contains("(x)"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
+
+
     }
 }

@@ -10,20 +10,141 @@ namespace ExcelIO
 {
     class IXML
     {
-        public IXML()
+        private string xmlFilePath;
+        public  string XMLFilePath
         {
+            set
+            {
+                xmlFilePath = value;
+            }
+            get
+            {
+                return xmlFilePath;
+            }
+        }
+        private bool readSwitch;
+        public bool ReadSwith
+        {
+            get
+            {
+                return this.readSwitch;
+            }
+            set
+            {
+                this.readSwitch = value;
+            }
+        }
+
+        public IXML(string str)
+        {
+            this.xmlFilePath =str ;
+            readSwitch = false;
+        }
+
+        public void XMLImportTest()
+        {
+            XmlDocument xml = new XmlDocument();
+            xml.Load(XMLFilePath);
+            XmlNode PART_EXTRACT = xml.SelectSingleNode("CFRGRANULE/PART");
+            string str;
+            StreamWriter writer = new StreamWriter(@"E:\temp/test.txt", true);
+            int count = 1;
+            
+            foreach (XmlNode test in PART_EXTRACT)
+            {
+                str = test.SelectSingleNode("EXTRACT/HD").InnerText;
+                Console.WriteLine(str);
+                Console.WriteLine(count.ToString());
+                writer.WriteLine(str);
+                count++;
+            }
+
 
         }
-        public static void XMLtoStream()
+
+        public void XMLtoStream()
         {
 
             //https://www.fenet.jp/dotnet/column/language/4511/
-            Task t = readXMLtest("E:\\Work\\CFR-1998-title14-vol1-part23.xml");
+            Task t = readXMLtest(this.XMLFilePath);
             Task.WaitAll(t);
-           
+
         }
 
-       /*static async Task readXMLtest(Stream stream)
+        async Task readXMLtest(string filename)
+        {
+            //http://blog.livedoor.jp/tkarasuma/archives/1036991193.html
+            XmlReaderSettings settings = new XmlReaderSettings();
+            settings.ConformanceLevel = ConformanceLevel.Document;
+            StreamWriter writer = new StreamWriter(@"E:\temp\test4.txt");
+
+            XmlReader reader = XmlReader.Create(filename, settings);
+            while (reader.Read())
+            {
+                //https://docs.microsoft.com/ja-jp/dotnet/api/system.xml.xmlnodetype?view=net-5.0
+                /*要素 (例: <item>)の場合。*/
+                if (reader.NodeType == XmlNodeType.Element)
+                {
+                    if(reader.LocalName == "EXTRACT")
+                    {
+                        Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
+                        reader.NodeType, reader.LocalName,
+                        reader.Depth, reader.Value);
+                        ReadSwith = true;
+                        Console.WriteLine();
+                    }
+                    else
+                    {
+
+                    }
+                    
+                    /*if (reader.HasAttributes)
+                    {
+                        for (int i = 0; i < reader.AttributeCount; i++)
+                        {
+                            reader.MoveToAttribute(i);
+                            Console.Write("\"Name\"={0},\tValue=\"{1}\"", reader.Name, reader.Value);
+                        }
+                        reader.MoveToElement();
+                    }*/
+                }
+                /*終了要素タグ (例: </item>)の場合。*/
+                else if (reader.NodeType == XmlNodeType.EndElement)
+                {
+                    /*Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
+                        reader.NodeType, reader.LocalName,
+                        reader.Depth, reader.Value);*/
+                        if(reader.LocalName == "EXTRACT")
+                    {
+                        Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
+                        reader.NodeType, reader.LocalName,
+                        reader.Depth, reader.Value);
+                        ReadSwith = false;
+                        Console.WriteLine();
+                    }
+                }
+                else if(reader.NodeType == XmlNodeType.Text && readSwitch)
+                {
+                    Console.Write("\"文章\"={0}", reader.Value);
+                    writer.WriteLine(reader.Value);
+                    Console.WriteLine();
+                }
+                else
+                {
+                    /*Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
+                        reader.NodeType, reader.LocalName,
+                        reader.Depth, reader.Value.Replace("\n", "改行↓"));*/
+                }
+                
+            }
+            reader.Close();
+
+
+
+            await Task.Delay(1000);
+        }
+
+        /*static async Task readXMLtest(Stream stream)
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.Async = true;
@@ -54,56 +175,6 @@ namespace ExcelIO
         }
         */
 
-        static async Task readXMLtest(string filename)
-        {
-            //http://blog.livedoor.jp/tkarasuma/archives/1036991193.html
-            XmlReaderSettings setting = new XmlReaderSettings();
-            setting.ConformanceLevel = ConformanceLevel.Document;
-
-            XmlReader reader = XmlReader.Create(filename, setting);
-            while(reader.Read())
-            {
-                if (reader.NodeType == XmlNodeType.Element)
-                {
-                    Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
-                        reader.NodeType, reader.LocalName,
-                        reader.Depth, reader.Value);
-                    //File.AppendAllText("C:\\temp\\testXML.txt", $"NodeType = {reader.NodeType}, \tLocalName = {reader.LocalName} ,\t Depth={reader.Depth}, \tValue={reader.Value}\n");
-                    
-                    if (reader.HasAttributes)
-                    {
-                        for (int i = 0; i < reader.AttributeCount; i++)
-                        {
-                            reader.MoveToAttribute(i);
-                            Console.Write("\"Name\"={0},\tValue=\"{1}\"", reader.Name, reader.Value);
-
-                        }
-                        reader.MoveToElement();
-                    }
-                }
-                else if (reader.NodeType == XmlNodeType.EndElement)
-                {
-                    Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
-                        reader.NodeType, reader.LocalName,
-                        reader.Depth, reader.Value);
-                    //File.AppendAllText("C:\\temp\\testXML.txt", $"NodeType = {reader.NodeType}, \tLocalName = {reader.LocalName} ,\t Depth={reader.Depth}, \t,Value={reader.Value}\n");
-
-                }
-                else
-                {
-                    Console.Write("NodeType = \"{0}\"\tLocalName = \"{1}\" ,\t Depth=\"{2}\"\t,Value=\"{3}\"",
-                        reader.NodeType, reader.LocalName,
-                        reader.Depth, reader.Value.Replace("\n", "改行↓"));
-                    File.AppendAllText("C:\\temp\\testXML.txt", $"NodeType = {reader.NodeType}, \tLocalName = {reader.LocalName} ,\t Depth={reader.Depth}, \t,Value={reader.Value.Replace("\n", "改行↓")}\n");
-
-                }
-                Console.WriteLine();
-            }
-            reader.Close();
-
-
-            await Task.Delay(1000);
-        }
     }
-    
+
 }
